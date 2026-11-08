@@ -1,6 +1,16 @@
 # VK Workspace Signature Cleaner
 
-A Tampermonkey userscript that removes the `Отправлено из VK WorkSpace` ("Sent from VK WorkSpace") promotional footer that VK WorkSpace web mail (`https://app.workspace.vk.ru/mail/`) adds to outgoing messages.
+A Tampermonkey userscript that removes the `Отправлено из VK WorkSpace` ("Sent from VK WorkSpace") footer that VK WorkSpace web mail adds to every message you send.
+
+| Sent from the web version | Sent with this script |
+|---|---|
+| ![Received email ending with "-- Отправлено из VK WorkSpace"](docs/screenshots/with-signature.png) | ![The same email without the footer](docs/screenshots/without-signature.png) |
+
+## Why
+
+Since Mail.ru Group renamed itself VK in 2021 and moved Mail.ru for Business into VK WorkSpace, many default settings have changed and more features have moved behind paid plans. One result: the web version of the mail (`https://app.workspace.vk.ru/mail/`) now adds `-- Отправлено из VK WorkSpace` to every message you send or reply to, even below your own signature, and without a paid plan there is no setting to turn it off. You don't see it while writing; it is added when you press Send.
+
+The mobile app doesn't add it, so until now the only way to avoid the footer was to send and reply from your phone. This script removes the hidden footer from messages sent from the web version.
 
 ## Install
 
