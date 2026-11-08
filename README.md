@@ -2,7 +2,7 @@
 
 A Tampermonkey userscript that removes the `Отправлено из VK WorkSpace` ("Sent from VK WorkSpace") footer that VK WorkSpace web mail adds to every message you send.
 
-| Sent from the web version | Sent with this script |
+| Without this script | With this script |
 |---|---|
 | ![Received email ending with "-- Отправлено из VK WorkSpace"](docs/screenshots/with-signature.png) | ![The same email without the footer](docs/screenshots/without-signature.png) |
 
