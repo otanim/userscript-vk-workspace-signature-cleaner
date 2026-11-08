@@ -1,0 +1,32 @@
+{
+  "name": "vk-workspace-signature-cleaner",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Removes the appended VK WorkSpace promotional signature from outgoing mail.",
+  "author": "Arman Yeghiazaryan",
+  "license": "MIT",
+  "homepage": "https://github.com/otanim/userscript-vk-workspace-signature-cleaner#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/otanim/userscript-vk-workspace-signature-cleaner.git"
+  },
+  "bugs": {
+    "url": "https://github.com/otanim/userscript-vk-workspace-signature-cleaner/issues"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:scripts": "node --test scripts/build-and-install-userscript.test.mjs",
+    "build": "npm run typecheck && vite build",
+    "build:install": "node scripts/build-and-install-userscript.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "28.1.0",
+    "typescript": "5.9.3",
+    "vite": "7.3.6",
+    "vite-plugin-monkey": "7.1.9",
+    "vitest": "4.1.11"
+  }
+}
