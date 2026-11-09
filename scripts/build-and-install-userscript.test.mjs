@@ -6,6 +6,7 @@ import test from 'node:test';
 import {
   discoverUserscriptArtifact,
   parseBuildInstallOptions,
+  resolveNpmInvocation,
   startUserscriptInstallServer,
   validateUserscriptArtifact,
 } from './build-and-install-userscript.mjs';
@@ -35,6 +36,34 @@ test('parses explicit build-install options', () => {
     timeoutMs: 5000,
   });
   assert.throws(() => parseBuildInstallOptions(['--unknown']), /Unknown build-install argument/u);
+  assert.throws(() => parseBuildInstallOptions(['--build-script=build & calc']), /npm script name/u);
+});
+
+test('runs the build through the npm that started the installer', () => {
+  assert.deepEqual(resolveNpmInvocation('build', {
+    env: { npm_execpath: '/usr/lib/node_modules/npm/bin/npm-cli.js' },
+    execPath: '/usr/bin/node',
+    platform: 'linux',
+  }), { executable: '/usr/bin/node', args: ['/usr/lib/node_modules/npm/bin/npm-cli.js', 'run', 'build'] });
+  assert.deepEqual(resolveNpmInvocation('build:all', {
+    env: { npm_execpath: 'C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js' },
+    execPath: 'C:\\Program Files\\nodejs\\node.exe',
+    platform: 'win32',
+  }), {
+    executable: 'C:\\Program Files\\nodejs\\node.exe',
+    args: ['C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js', 'run', 'build:all'],
+  });
+});
+
+test('never spawns the npm .cmd shim directly on Windows', () => {
+  assert.deepEqual(resolveNpmInvocation('build', { env: {}, platform: 'win32' }), {
+    executable: 'cmd.exe',
+    args: ['/d', '/s', '/c', 'npm', 'run', 'build'],
+  });
+  assert.deepEqual(resolveNpmInvocation('build', { env: {}, platform: 'linux' }), {
+    executable: 'npm',
+    args: ['run', 'build'],
+  });
 });
 
 test('discovers and validates exactly one project-local userscript artifact', async () => {

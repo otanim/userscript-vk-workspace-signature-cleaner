@@ -9,6 +9,7 @@ import process from 'node:process';
 import { pathToFileURL } from 'node:url';
 
 const DEFAULT_BUILD_SCRIPT = 'build';
+const BUILD_SCRIPT_PATTERN = /^[A-Za-z0-9][A-Za-z0-9:._-]*$/u;
 const DEFAULT_TIMEOUT_MS = 120_000;
 const LOOPBACK_HOST = '127.0.0.1';
 const TAMPERMONKEY_INSTALL_PAGE = 'https://www.tampermonkey.net/script_installation.php';
@@ -65,7 +66,26 @@ export function parseBuildInstallOptions(argv) {
       throw new Error(`Unknown build-install argument: ${argument ?? ''}`);
     }
   }
+  if (!BUILD_SCRIPT_PATTERN.test(options.buildScript)) {
+    throw new Error('--build-script must be an npm script name.');
+  }
   return options;
+}
+
+export function resolveNpmInvocation(buildScript, {
+  env = process.env,
+  execPath = process.execPath,
+  platform = process.platform,
+} = {}) {
+  const npmCli = env.npm_execpath;
+  if (npmCli && /\.[cm]?js$/u.test(npmCli)) {
+    return { executable: execPath, args: [npmCli, 'run', buildScript] };
+  }
+  if (platform === 'win32') {
+    // npm is a .cmd shim on Windows, which Node can only start through cmd.exe.
+    return { executable: 'cmd.exe', args: ['/d', '/s', '/c', 'npm', 'run', buildScript] };
+  }
+  return { executable: 'npm', args: ['run', buildScript] };
 }
 
 async function listFiles(directoryPath) {
@@ -170,12 +190,14 @@ export async function startUserscriptInstallServer(artifactPath, source) {
 }
 
 function runBuild(projectPath, buildScript) {
+  const { executable, args } = resolveNpmInvocation(buildScript);
   return new Promise((resolve, reject) => {
-    const child = spawn('npm', ['run', buildScript], {
+    const child = spawn(executable, args, {
       cwd: projectPath,
       env: process.env,
       shell: false,
       stdio: 'inherit',
+      windowsHide: true,
     });
     child.once('error', reject);
     child.once('exit', (code, signal) => {
